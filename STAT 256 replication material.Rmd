@@ -1,0 +1,105 @@
+---
+title: "STAT 256 Replication Material"
+author: "Juan C. Campos"
+date: "12/7/2021"
+output: pdf_document
+---
+
+```{r}
+# packages
+library(rgdal)
+library(readxl)
+library(dplyr)
+library(classInt)
+library(RColorBrewer)
+library(ggplot2)
+```
+
+
+```{r}
+# load data
+
+setwd("/Users/juancampos/Desktop")
+getwd()
+
+library("readxl")
+
+A3_data <- read_excel("Campos_A3_data.xlsx")
+
+```
+
+```{r}
+# used to aggregate apv data
+
+#apv <- read_excel("Campos_A3_data2.xlsx")
+#apv_agg <- aggregate(apv$Estado, by = list(apv$Estado), FUN = length)
+```
+
+```{r}
+#sesnsp <- read_excel("2020.xlsx")
+
+```
+
+```{r}
+# sum across columns to estimate total number of offenses
+
+#sesnsp$total <- rowSums(sesnsp [10:21], na.rm=TRUE)
+
+```
+
+
+```{r}
+#sesnsp2 <- aggregate(sesnsp$total, by = list(sesnsp$Clave_Ent), FUN = sum)
+
+```
+
+
+```{r}
+# rename variables then merge
+
+#sesnsp2 <- rename(sesnsp2, state_code = Group.1)
+#sesnsp2 <- rename(sesnsp2,  crimes20 = x)
+
+#A3_data2 <- merge(A3_data, sesnsp2, by="state_code", all=TRUE)
+```
+
+```{r}
+
+#A3_data2$clear_rate <- (A3_data2$cleared20/A3_data2$crimes20) * 100
+
+```
+
+```{r}
+# load shapefile
+
+mex <- readOGR("//Users/juancampos/Desktop/mex_shape/MEX_adm1.shp")
+#plot(mex)
+#head(mex@data)
+#tail(mex@data)
+```
+
+```{r}
+## merge data (run one at a time)
+
+mex@data <- left_join(mex@data, A3_data2, by = c('NAME_1' = "state"))
+
+```
+
+```{r}
+
+colors2 <- brewer.pal(7, "Reds")
+colors2
+
+# breaks
+
+brks2 <- c(0, 10, 20, 30, 40, 84)
+
+# map
+
+plot(mex, col = colors2[findInterval(mex$apv20, brks2, all.inside = FALSE)], axes = F)
+title(paste("Number of Murdered Police Officers"))
+legend("bottomleft", legend = c("0 - 10", "10 - 20", "20 - 30", "30 - 40", "84"), fill=colors2,bty="n")
+
+
+```
+
